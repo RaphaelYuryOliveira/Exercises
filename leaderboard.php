@@ -1,64 +1,61 @@
 <?php
 
 # Climbing the Leaderboard (HackerRank)
-
-function binarySearch($ranked, $find, $max, $min, $maxElement, $rankedCopy) {
-    if($ranked[$min] < $find) {
-        return 'MAX';
+function findPosition(array $ranked, int $target, int $min, int $max): int {
+    if ($target < $ranked[$max]) {
+        return $max + 2;
     }
-
-    if($ranked[$maxElement] > $find) {
-        return 'MIN';
+    
+    if ($target === $ranked[$max]) {
+        return $max + 1;
     }
-
-    if(isset($rankedCopy[$find])) {
-        return $rankedCopy[$find];
+    
+    if ($target >= $ranked[$min]) {
+        return 1;
     }
-
+    
     while($min <= $max) {
-        $mid = intdiv(($max+$min), 2);
+        $mid = intdiv(($max + $min), 2);
 
-        if($ranked[$mid] > $find) {
-            if(isset($ranked[$mid + 1]) && $ranked[$mid + 1] < $find) {
-                return $mid + 1;
+        if ($target === $ranked[$mid]) {
+            return $mid + 1;
+        }
+        
+        if ($target < $ranked[$mid]) {
+            if ($target >= $ranked[$mid + 1]) {
+                return $mid + 2;
             }
 
             $min = $mid + 1;
             continue;
         }
-
-        if(isset($ranked[$mid - 1]) && $ranked[$mid - 1] > $find) {
+    
+        if ($target < $ranked[$mid - 1] ) {
+            return $mid + 1;
+        } 
+        
+        if ($target === $ranked[$mid - 1]) {
             return $mid;
         }
-
+        
         $max = $mid - 1;
     }
+    
+    return -1;
 }
 
 function climbingLeaderboard($ranked, $player) {
-    $ranked = array_values(array_unique($ranked));
-    $rankedCopy = array_combine($ranked, array_keys($ranked));
-    $max = count($ranked);
-    $maxElement = $max - 1;
-
     $response = [];
+    $ranked = array_unique($ranked);
+    $ranked = [...$ranked];
+    $min = 0;
+    $total = count($ranked);
+    $max = $total - 1;
     foreach($player as $play) {
-        $result = binarySearch($ranked, $play, $max, 0, $maxElement, $rankedCopy);
-
-        if($result === 'MAX') {
-            $response[] = 1;
-            continue;
-        }
-
-        if($result === 'MIN') {
-            $response[] = $maxElement + 2;
-            continue;
-        }
-
-        $response[] = ++$result;
+        $response[] = findPosition($ranked, $play, $min, $max);
     }
-
-    return $response;
+    
+    return $response;  
 }
 
 $result = climbingLeaderboard([295,294,291,287,287,285,285,284,283,279,277,274,274,271,270,268,268,268,264,260,259,258,257,255,252,250,244,241,240,237,236,236,231,227,227,227,226,225,224,223,216,212,200,197,196,194,193,189,188,187,183,182,178,177,173,171,169,165,143,140,137,135,133,130,130,130,128,127,122,120,116,114,113,109,106,103,99,92,85,81,69,68,63,63,63,61,57,51,47,46,38,30,28,25,22,15,14,12,6,4], 
